@@ -1,8 +1,11 @@
 import OpenAI from "openai";
 import type { CityInput, Leg } from "./store";
 
-const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 const MODEL = process.env.OPENAI_MODEL ?? "gpt-4o-mini";
+
+function getClient() {
+  return new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+}
 
 export async function generatePlan(params: {
   title: string; cities: CityInput[]; legs: Leg[]; mode: string; pace: string;
@@ -41,7 +44,7 @@ Her günde Sabah, Öğle, Akşam olsun.
 # 4. Pratik İpuçları
 3-5 madde.`;
 
-  const completion = await client.chat.completions.create({
+  const completion = await getClient().chat.completions.create({
     model: MODEL,
     messages: [{ role: "user", content: prompt }],
   });
