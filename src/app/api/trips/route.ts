@@ -12,17 +12,17 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     const title: string = (body.title ?? "").trim().slice(0, 80);
-    if (!title) return NextResponse.json({ error: "Başlık boş olamaz." }, { status: 400 });
+    if (!title) return NextResponse.json({ error: "Baslik bos olamaz." }, { status: 400 });
 
     const rawCities: CityInput[] = body.cities ?? [];
-    if (rawCities.length < 2) return NextResponse.json({ error: "En az 2 şehir giriniz." }, { status: 400 });
+    if (rawCities.length < 2) return NextResponse.json({ error: "En az 2 sehir giriniz." }, { status: 400 });
 
     const cities: CityInput[] = rawCities.map(c => ({
       name: (c.name ?? "").trim(),
       nights: clamp(Number(c.nights) || 1, 1, 14),
     }));
     for (const c of cities) {
-      if (!c.name) return NextResponse.json({ error: "Şehir adı boş olamaz." }, { status: 400 });
+      if (!c.name) return NextResponse.json({ error: "Sehir adi bos olamaz." }, { status: 400 });
     }
 
     const mode = ["mixed","train","car","flight"].includes(body.mode) ? body.mode : "mixed";
@@ -33,9 +33,8 @@ export async function POST(req: NextRequest) {
     );
 
     const planMarkdown = await generatePlan({ title, cities, legs, mode, pace });
-
     const trip = { id: createId(), title, cities, mode, pace, legs, planMarkdown, createdAt: new Date().toISOString() };
-    saveTrip(trip);
+    await saveTrip(trip);
 
     return NextResponse.json({ id: trip.id });
   } catch (err: unknown) {
